@@ -1,10 +1,12 @@
 package fullstack.fleamarket;
 
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -29,6 +31,48 @@ public class ApiController {
         return productDAO.findAll();
     }
 
+    @GetMapping(value = "/categories", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getCategories() {
+        List<String> categories = productDAO.findDistinctCategory();
+        JSONArray array = new JSONArray(categories);
+        JSONObject answer = new JSONObject();
+        answer.put("categories", array);
+        return answer.toString();
+    }
+
+    @GetMapping(value = "/top_products", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getTopProducts(
+            @RequestParam(required = false, name = "category") String category,
+            @RequestParam(required = false, defaultValue = "10", name = "number") Integer number
+    ) {
+        JSONObject answer = new JSONObject();
+        List<Product> products;
+        if (category == null) {
+            products = productDAO.getTopN(number);
+        } else {
+            products = productDAO.getTopNFromCategory(number, category);
+        }
+        JSONArray array = new JSONArray(products);
+        answer.put("products", array);
+        return answer.toString();
+    }
+
+    @GetMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getProductsForUser(@RequestParam(name = "login") String login) {
+        JSONObject answer = new JSONObject();
+        Optional<User> user = userDAO.findById(login);
+        if (user.isPresent()) {
+            List<Product> products = productDAO.findByUserEquals(user.get());
+            JSONArray array = new JSONArray(products);
+            answer = new JSONObject(user.get());
+            answer.put("products", array);
+        } else {
+            answer.put("status", 404);
+            answer.put("message", "Пользователь с таким логином не найден");
+        }
+        return answer.toString();
+    }
+
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public String login(@RequestBody String message) {
         JSONObject msg = new JSONObject(message);
@@ -42,13 +86,13 @@ public class ApiController {
 
         if (user.isPresent()) {
             if (user.get().getPassword().equals(password)) {
-                answer.put("status", Boolean.TRUE);
+                answer.put("status", 0);
             } else {
-                answer.put("status", Boolean.FALSE);
+                answer.put("status", 1);
                 answer.put("message", "Неправильный пароль");
             }
         } else {
-            answer.put("status", Boolean.FALSE);
+            answer.put("status", 1);
             answer.put("message", "Неправильный логин");
         }
 
@@ -73,13 +117,13 @@ public class ApiController {
                 u.setPassword(new_password);
                 userDAO.deleteById(login);
                 userDAO.save(u);
-                answer.put("status", Boolean.TRUE);
+                answer.put("status", 0);
             } else {
-                answer.put("status", Boolean.FALSE);
+                answer.put("status", 1);
                 answer.put("message", "Неправильный пароль");
             }
         } else {
-            answer.put("status", Boolean.FALSE);
+            answer.put("status", 1);
             answer.put("message", "Неправильный логин");
         }
 
@@ -88,6 +132,8 @@ public class ApiController {
 
     @PostMapping(value = "/create_user", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public String createUser(@RequestBody String message) {
+        /// TODO: Валидировать данные
+
         JSONObject msg = new JSONObject(message);
         JSONObject answer = new JSONObject();
 
@@ -107,7 +153,7 @@ public class ApiController {
 
         userDAO.save(user);
 
-        answer.put("status",Boolean.TRUE);
+        answer.put("status", 0);
         return answer.toString();
     }
 
@@ -133,7 +179,7 @@ public class ApiController {
 
         productDAO.save(product);
 
-        answer.put("status",Boolean.TRUE);
+        answer.put("status", 0);
         return answer.toString();
     }
 }
