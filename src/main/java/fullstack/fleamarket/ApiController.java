@@ -55,7 +55,7 @@ public class ApiController {
         return answer.toString();
     }
 
-    @PostMapping(value = "/changepassword", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+    @PostMapping(value = "/change_password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
     public String changepassword(@RequestBody String message) {
         JSONObject msg = new JSONObject(message);
 
@@ -83,6 +83,31 @@ public class ApiController {
             answer.put("message", "Неправильный логин");
         }
 
+        return answer.toString();
+    }
+
+    @PostMapping(value = "/create_user", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+    public String createUser(@RequestBody String message) {
+        JSONObject msg = new JSONObject(message);
+        JSONObject answer = new JSONObject();
+
+        User user = new User(msg.getString("login"), msg.getString("email"), msg.getString("password"));
+
+        if (msg.has("name")) {
+            user.setName(msg.getString("name"));
+        }
+
+        if (msg.has("dorm")) {
+            user.setDorm(msg.getInt("dorm"));
+        }
+
+        if (msg.has("phone")) {
+            user.setPhone(msg.getString("phone"));
+        }
+
+        userDAO.save(user);
+
+        answer.put("status",Boolean.TRUE);
         return answer.toString();
     }
 }

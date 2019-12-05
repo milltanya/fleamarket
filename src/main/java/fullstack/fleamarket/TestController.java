@@ -31,7 +31,10 @@ public class TestController {
     @GetMapping(value = "/init", produces=MediaType.TEXT_PLAIN_VALUE)
     public String init() {
 
-        User user = new User("milltanya", "Таня Миллер", "miller.to@phystech.edu", "1111", 12, "89851151743");
+        User user = new User("milltanya", "miller.to@phystech.edu", "1111");
+        user.setName("Таня Миллер");
+        user.setDorm(12);
+        user.setPhone("89851151743");
         userDAO.save(user);
 
         Product product = new Product("milltanya", "Мебель", "Комод", "Белый комод икеа 90*80*40", 12, LocalDateTime.now().toString(), 200000);

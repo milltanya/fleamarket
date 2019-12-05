@@ -39,7 +39,7 @@
   
 - Поменять пароль
 
-  Отправить на ```http://localhost:8080/api/changepassword``` json формата
+  Отправить на ```http://localhost:8080/api/change_password``` json формата
   
   ```$xslt
   {
@@ -60,6 +60,34 @@
   Например
   ```$xslt
   curl -X POST -H "Content-Type: application/json" -d '{"login":"milltanya","old_password":"1111","new_password":"1112"}' http://localhost:8080/api/changepassword
+  {"status":true}
+  ```
+  
+- Создать пользователя
+
+  Отправить на ```http://localhost:8080/api/create_user``` json формата
+  
+  ```$xslt
+  {
+    "login":<login>,
+    "name":<name>,
+    "email":<email>,
+    "password":<password>,
+    "dorm":<dorm>,
+    "phone":<phone>
+  }
+  ```  
+  Ответ имеет вид 
+  
+  ```$xslt
+  {
+    "status":<true/false>,
+  }
+  ```
+  
+  Например
+  ```$xslt
+  curl -X POST -H "Content-Type: application/json" -d '{"login":"new_user","password":"1111","email":"kek@gmail.com","dorm":2}' http://localhost:8080/api/create_user
   {"status":true}
   ```
 

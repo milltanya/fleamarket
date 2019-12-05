@@ -2,7 +2,6 @@ package fullstack.fleamarket;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
@@ -20,7 +19,7 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    /// TODO: хранить пароли в хеша
+    /// TODO: хранить пароли в хешах
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -35,21 +34,14 @@ public class User {
 
     protected User() {}
 
-    /// TODO: Сделать все аргументы именованными, чтобы в контроллере извлекать их из json
     public User(
             String login,
-            String name,
             String email,
-            String password,
-            Integer dorm,
-            String phone
+            String password
     ) {
         this.login = login;
-        this.name = name;
         this.email = email;
         this.password = password;
-        this.dorm = dorm;
-        this.phone = phone;
     }
 
     public String getLogin() {
@@ -58,6 +50,10 @@ public class User {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -76,7 +72,15 @@ public class User {
         return dorm;
     }
 
+    public void setDorm(Integer dorm) {
+        this.dorm = dorm;
+    }
+
     public String getPhone() {
         return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }
