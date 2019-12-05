@@ -19,17 +19,17 @@ public class ApiController {
         this.productDAO = productDAO;
     }
 
-    @GetMapping("/users")
+    @GetMapping(value = "/users")
     public Iterable<User> getUsers() {
         return userDAO.findAll();
     }
 
-    @GetMapping("/products")
+    @GetMapping(value = "/products")
     public Iterable<Product> getProducts() {
         return productDAO.findAll();
     }
 
-    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public String login(@RequestBody String message) {
         JSONObject msg = new JSONObject(message);
 
@@ -55,7 +55,7 @@ public class ApiController {
         return answer.toString();
     }
 
-    @PostMapping(value = "/change_password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+    @PostMapping(value = "/change_password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public String changepassword(@RequestBody String message) {
         JSONObject msg = new JSONObject(message);
 
@@ -86,7 +86,7 @@ public class ApiController {
         return answer.toString();
     }
 
-    @PostMapping(value = "/create_user", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+    @PostMapping(value = "/create_user", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public String createUser(@RequestBody String message) {
         JSONObject msg = new JSONObject(message);
         JSONObject answer = new JSONObject();
@@ -106,6 +106,32 @@ public class ApiController {
         }
 
         userDAO.save(user);
+
+        answer.put("status",Boolean.TRUE);
+        return answer.toString();
+    }
+
+    @PostMapping(value = "/create_product", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public String createProduct(@RequestBody String message) {
+        JSONObject msg = new JSONObject(message);
+        JSONObject answer = new JSONObject();
+
+        User user = userDAO.findById(msg.getString("user")).get();
+        Product product = new Product(user, msg.getString("name"), msg.getInt("price"));
+
+        if (msg.has("category")) {
+            product.setCategory(msg.getString("category"));
+        }
+
+        if (msg.has("description")) {
+            product.setDescription(msg.getString("description"));
+        }
+
+        if (msg.has("dorm")) {
+            product.setDorm(msg.getInt("dorm"));
+        }
+
+        productDAO.save(product);
 
         answer.put("status",Boolean.TRUE);
         return answer.toString();

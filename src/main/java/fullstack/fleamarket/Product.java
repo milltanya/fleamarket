@@ -1,11 +1,10 @@
 package fullstack.fleamarket;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "Product")
 public class Product {
 
     /// TODO: Добавить картинки
@@ -15,8 +14,9 @@ public class Product {
     @Column(name = "id", nullable = false)
     public Long id;
 
-    @Column(name = "user_login", nullable = false)
-    private String userLogin;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user", nullable = false)
+    private User user;
 
     @Column(name = "category")
     private String category;
@@ -24,7 +24,7 @@ public class Product {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description", length = 500)
     private String description;
 
     @Column(name = "dorm")
@@ -39,29 +39,26 @@ public class Product {
     protected Product() {}
 
     public Product(
-            String userLogin,
-            String category,
+            User user,
             String name,
-            String description,
-            Integer dorm,
-            String timestamp,
             Integer price
     ) {
-        this.userLogin = userLogin;
-        this.category = category;
+        this.user = user;
         this.name = name;
-        this.description = description;
-        this.dorm = dorm;
-        this.timestamp = timestamp;
+        this.timestamp = LocalDateTime.now().toString();
         this.price = price;
     }
 
-    public String getUserLogin() {
-        return userLogin;
+    public User getUser() {
+        return user;
     }
 
     public String getCategory() {
         return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getName() {
@@ -72,8 +69,16 @@ public class Product {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Integer getDorm() {
         return dorm;
+    }
+
+    public void setDorm(Integer dorm) {
+        this.dorm = dorm;
     }
 
     public String getTimestamp() {

@@ -1,10 +1,10 @@
 package fullstack.fleamarket;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
+@Table(name = "User")
 public class User {
 
     /// TODO: Добавить админов и простых пользователей
@@ -31,6 +31,9 @@ public class User {
 
     @Column(name = "photo")
     private String photo;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Product> productList;
 
     protected User() {}
 
