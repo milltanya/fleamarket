@@ -12,6 +12,22 @@
 
   ```http://localhost:8080/api/products```
   
+- Получить список категорий
+
+  ```http://localhost:8080/api/categories```
+
+- Получить самые новые товары
+
+  ```http://localhost:8080/api/top_products?category=<CATEGORY>&numbe=r<NUMBER>```
+  
+  Возвращает json-список из <NUMBER> (по умолчанию 10) товаров из категории <CATEGORY> (если не указана, то просто список самых новых товаров)
+  
+- Получить информацию об определенном пользователе
+
+  ```http://localhost:8080/api/user?login=<LOGIN>```
+  
+  Возвращает json-объект со всей информацией о пользователе, включая его товары
+  
 - Залогиниться
 
   Отправить на ```http://localhost:8080/api/login``` json формата
@@ -26,7 +42,7 @@
   
   ```$xslt
   {
-    "status":<true/false>,
+    "status":<0/1>,
     "message":<Wrong login/password> (если status=false)
   }
   ```
@@ -34,7 +50,7 @@
   Например
   ```$xslt
   curl -X POST -H "Content-Type: application/json" -d '{"login":"mylogin","password":"1111"}' http://localhost:8080/api/login
-  {"status":true}
+  {"status":0}
   ```
   
 - Поменять пароль
@@ -52,7 +68,7 @@
   
   ```$xslt
   {
-    "status":<true/false>,
+    "status":<0/1>,
     "message":<Wrong login/password> (если status=false)
   }
   ```
@@ -60,7 +76,7 @@
   Например
   ```$xslt
   curl -X POST -H "Content-Type: application/json" -d '{"login":"milltanya","old_password":"1111","new_password":"1112"}' http://localhost:8080/api/changepassword
-  {"status":true}
+  {"status":0}
   ```
   
 - Создать пользователя
@@ -69,10 +85,12 @@
   
   ```$xslt
   {
+    *обязательные поля*
     "login":<login>,
-    "name":<name>,
     "email":<email>,
     "password":<password>,
+    *необязательные поля*
+    "name":<name>,
     "dorm":<dorm>,
     "phone":<phone>
   }
@@ -81,16 +99,40 @@
   
   ```$xslt
   {
-    "status":<true/false>,
+    "status":<0/1>,
   }
   ```
   
   Например
   ```$xslt
   curl -X POST -H "Content-Type: application/json" -d '{"login":"new_user","password":"1111","email":"kek@gmail.com","dorm":2}' http://localhost:8080/api/create_user
-  {"status":true}
+  {"status":0}
   ```
+  
+- Создать товар
 
+  Отправить на ```http://localhost:8080/api/create_product``` json формата
+  
+  ```$xslt
+  {
+    *обязательные поля*
+    "user":<login>,
+    "name":<name>,
+    "price":<price>,
+    *необязательные поля*
+    "category":<category>,
+    "description":<description>,
+    "dorm":<dorm>
+  }
+  ```  
+  Ответ имеет вид 
+  
+  ```$xslt
+  {
+    "status":<0/1>,
+  }
+  ```
+  
 - Консоль базы данных. Там можно писать sql-запросы
 
   ```http://localhost:8080/h2-console```
