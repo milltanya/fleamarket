@@ -37,7 +37,10 @@ public class TestController {
         user.setPhone("89851151743");
         userDAO.save(user);
 
-        Product product = new Product("milltanya", "Мебель", "Комод", "Белый комод икеа 90*80*40", 12, LocalDateTime.now().toString(), 200000);
+        Product product = new Product(userDAO.findById("milltanya").get(), "Комод", 200000);
+        product.setCategory("Мебель");
+        product.setDescription("Белый комод икеа 90*80*40");
+        product.setDorm(12);
         productDAO.save(product);
 
         return "В базу записалось, что есть пользователь Таня и что она хочет продать белый комод";
