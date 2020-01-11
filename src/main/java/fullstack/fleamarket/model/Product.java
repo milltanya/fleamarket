@@ -1,4 +1,4 @@
-package fullstack.fleamarket;
+package fullstack.fleamarket.entity;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

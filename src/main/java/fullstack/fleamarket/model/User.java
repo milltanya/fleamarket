@@ -1,4 +1,6 @@
-package fullstack.fleamarket;
+package fullstack.fleamarket.entity;
+
+import fullstack.fleamarket.entity.Product;
 
 import javax.persistence.*;
 import java.util.List;
