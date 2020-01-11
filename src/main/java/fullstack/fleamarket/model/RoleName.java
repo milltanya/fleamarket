@@ -1,6 +1,7 @@
 package fullstack.fleamarket.model;
 
-public enum Role {
-    ROLE_USER,
-    ROLE_ADMIN
+
+public class RoleName {
+    public static String ROLE_USER = "USER";
+    public static String ROLE_ADMIN = "ADMIN";
 }

@@ -1,6 +1,10 @@
-package fullstack.fleamarket;
+package fullstack.fleamarket.controller;
 
 
+import fullstack.fleamarket.model.Product;
+import fullstack.fleamarket.repository.ProductDAO;
+import fullstack.fleamarket.model.User;
+import fullstack.fleamarket.repository.UserDAO;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.MediaType;

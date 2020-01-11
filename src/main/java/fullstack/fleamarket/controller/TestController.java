@@ -1,11 +1,13 @@
-package fullstack.fleamarket;
+package fullstack.fleamarket.controller;
 
+import fullstack.fleamarket.model.Product;
+import fullstack.fleamarket.repository.ProductDAO;
+import fullstack.fleamarket.model.User;
+import fullstack.fleamarket.repository.UserDAO;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/test")

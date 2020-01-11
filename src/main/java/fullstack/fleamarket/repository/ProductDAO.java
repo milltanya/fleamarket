@@ -1,5 +1,8 @@
-package fullstack.fleamarket.model;
+package fullstack.fleamarket.repository;
 
+
+import fullstack.fleamarket.model.Product;
+import fullstack.fleamarket.model.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
