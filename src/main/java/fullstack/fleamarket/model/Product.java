@@ -1,5 +1,6 @@
 package fullstack.fleamarket.model;
 
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -13,11 +14,10 @@ public class Product {
     @Id
     @GeneratedValue
     @Column(name = "id", nullable = false)
-    public Long id;
+    private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user", nullable = false)
-    private User user;
+    @Column(name = "userId", nullable = false)
+    private Long userId;
 
     @Column(name = "category")
     private String category;
@@ -40,18 +40,22 @@ public class Product {
     protected Product() {}
 
     public Product(
-            User user,
+            Long userId,
             String name,
-            Integer price
+            Integer price,
+            String category
     ) {
-        this.user = user;
+        this.userId = userId;
         this.name = name;
         this.timestamp = LocalDateTime.now().toString();
         this.price = price;
+        this.category = category;
     }
 
-    public User getUser() {
-        return user;
+    public Long getId() { return id; }
+
+    public Long getUserId() {
+        return userId;
     }
 
     public String getCategory() {
@@ -88,5 +92,17 @@ public class Product {
 
     public Integer getPrice() {
         return price;
+    }
+
+    public JSONObject toJson() {
+        JSONObject answer = new JSONObject();
+        answer.put("id", this.id);
+        answer.put("userId", this.userId);
+        answer.put("category", this.category);
+        answer.put("name", this.name);
+        answer.put("description", this.description);
+        answer.put("price", this.price);
+
+        return answer;
     }
 }

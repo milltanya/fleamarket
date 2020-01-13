@@ -24,5 +24,5 @@ public interface ProductDAO extends CrudRepository<Product, Long> {
     @Query(nativeQuery = true, value = "SELECT * FROM Product ORDER BY timestamp DESC limit :number")
     List<Product> getTopN(@Param("number") Integer number);
 
-    List<Product> findByUserEquals(User user);
+    List<Product> findByUserIdEquals(Long userId);
 }

@@ -33,14 +33,13 @@ public class TestController {
     @GetMapping(value = "/init", produces=MediaType.TEXT_PLAIN_VALUE)
     public String init() {
 
-        User user = new User("milltanya", "miller.to@phystech.edu", "1111");
+        User user = new User("milltanya", "Tanya", "miller.to@phystech.edu", "1111");
         user.setName("Таня Миллер");
         user.setDorm(12);
         user.setPhone("89851151743");
         userDAO.save(user);
 
-        Product product = new Product(userDAO.findById("milltanya").get(), "Комод", 200000);
-        product.setCategory("Мебель");
+        Product product = new Product(userDAO.findByUsernameEquals("milltanya").get(0).getId(), "Комод", 200000, "furniture");
         product.setDescription("Белый комод икеа 90*80*40");
         product.setDorm(12);
         productDAO.save(product);

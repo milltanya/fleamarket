@@ -15,7 +15,7 @@ public class User {
     @Id
     @GeneratedValue
     @Column(name = "id", nullable = false)
-    public Long id;
+    private Long id;
 
     @Column(name = "username", nullable = false, unique = true)
     private String username;
@@ -41,17 +41,16 @@ public class User {
 
     private String roles = "";
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Product> productList;
-
     protected User() {}
 
     public User(
             String username,
+            String name,
             String email,
             String password
     ) {
         this.username = username;
+        this.name = name;
         this.email = email;
         this.password = password;
     }

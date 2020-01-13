@@ -5,8 +5,11 @@ import fullstack.fleamarket.model.Product;
 import fullstack.fleamarket.repository.ProductDAO;
 import fullstack.fleamarket.model.User;
 import fullstack.fleamarket.repository.UserDAO;
+import fullstack.fleamarket.security.jwt.JwtProvider;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.platform.commons.util.ToStringBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +28,9 @@ public class ApiController {
         this.userDAO = userDAO;
         this.productDAO = productDAO;
     }
+
+    @Autowired
+    private JwtProvider tokenProvider;
 
     @GetMapping(value = "/users")
     public Iterable<User> getUsers() {
@@ -45,31 +51,37 @@ public class ApiController {
         return answer.toString();
     }
 
-    @GetMapping(value = "/top_products", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/products/top_by_categories", produces = MediaType.APPLICATION_JSON_VALUE)
     public String getTopProducts(
-            @RequestParam(required = false, name = "category") String category,
+            @RequestParam(required = false, name = "categories") List<String> categories,
             @RequestParam(required = false, defaultValue = "10", name = "number") Integer number
     ) {
         JSONObject answer = new JSONObject();
-        List<Product> products;
-        if (category == null) {
-            products = productDAO.getTopN(number);
-        } else {
-            products = productDAO.getTopNFromCategory(number, category);
+        for (String category : categories) {
+            List<Product> products= productDAO.getTopNFromCategory(number, category);
+            answer.put(category, new JSONArray(products));
         }
-        JSONArray array = new JSONArray(products);
-        answer.put("products", array);
         return answer.toString();
     }
 
-    @GetMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String getProductsForUser(@RequestParam(name = "login") String login) {
+    @GetMapping(value = "/products/top", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getTopProducts(
+            @RequestParam(required = false, defaultValue = "10", name = "number") Integer number
+    ) {
         JSONObject answer = new JSONObject();
-        Optional<User> user = userDAO.findById(login);
-        if (user.isPresent()) {
-            List<Product> products = productDAO.findByUserEquals(user.get());
+        List<Product> products = productDAO.getTopN(number);
+        answer.put("products", new JSONArray(products));
+        return answer.toString();
+    }
+
+    @GetMapping(value = "/products/by_username", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getProductsForUser(@RequestParam(name = "username") String username) {
+        JSONObject answer = new JSONObject();
+        List<User> user = userDAO.findByUsernameEquals(username);
+        if (!user.isEmpty()) {
+            List<Product> products = productDAO.findByUserIdEquals(user.get(0).getId());
             JSONArray array = new JSONArray(products);
-            answer = new JSONObject(user.get());
+            answer = new JSONObject();
             answer.put("products", array);
         } else {
             answer.put("status", 404);
@@ -78,33 +90,14 @@ public class ApiController {
         return answer.toString();
     }
 
-    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String login(@RequestBody String message) {
-        JSONObject msg = new JSONObject(message);
-
-        String login = msg.getString("login");
-        String password = msg.getString("password");
-
-        Optional<User> user = userDAO.findById(login);
-
+    @GetMapping(value = "/products/my", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getProductsForMe(@RequestHeader(value = "Authorization") String auth) {
         JSONObject answer = new JSONObject();
-
-        if (user.isPresent()) {
-            if (user.get().getPassword().equals(password)) {
-                answer.put("status", 0);
-            } else {
-                answer.put("status", 1);
-                answer.put("message", "Неправильный пароль");
-            }
-        } else {
-            answer.put("status", 1);
-            answer.put("message", "Неправильный логин");
-        }
-
-        return answer.toString();
+        String username = tokenProvider.getUserNameFromJwtToken(auth.replace("Bearer ", ""));
+        return getProductsForUser(username);
     }
 
-    @PostMapping(value = "/change_password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    /*@PostMapping(value = "/change_password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public String changepassword(@RequestBody String message) {
         JSONObject msg = new JSONObject(message);
 
@@ -133,9 +126,9 @@ public class ApiController {
         }
 
         return answer.toString();
-    }
+    }*/
 
-    @PostMapping(value = "/create_user", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    /*@PostMapping(value = "/create_user", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public String createUser(@RequestBody String message) {
         /// TODO: Валидировать данные
 
@@ -160,19 +153,18 @@ public class ApiController {
 
         answer.put("status", 0);
         return answer.toString();
-    }
+    }*/
 
-    @PostMapping(value = "/create_product", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String createProduct(@RequestBody String message) {
+    @PostMapping(value = "/products/manage/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public String createProduct(@RequestBody String message,
+                                @RequestHeader(value = "Authorization") String auth) {
         JSONObject msg = new JSONObject(message);
         JSONObject answer = new JSONObject();
 
-        User user = userDAO.findById(msg.getString("user")).get();
-        Product product = new Product(user, msg.getString("name"), msg.getInt("price"));
-
-        if (msg.has("category")) {
-            product.setCategory(msg.getString("category"));
-        }
+        String username = tokenProvider.getUserNameFromJwtToken(auth.replace("Bearer ", ""));
+        User user = userDAO.findByUsernameEquals(username).get(0);
+        Product product = new Product(user.getId(), msg.getString("name"),
+                msg.getInt("price"), msg.getString("category"));
 
         if (msg.has("description")) {
             product.setDescription(msg.getString("description"));
@@ -183,6 +175,26 @@ public class ApiController {
         }
 
         productDAO.save(product);
+
+        answer.put("status", 0);
+        answer.put("product", product.toJson());
+        return answer.toString();
+    }
+
+    @PostMapping(value = "/products/manage/delete", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public String deleteProduct(@RequestParam(name = "product_id") Long product_id,
+                                @RequestHeader(value = "Authorization") String auth) {
+        String username = tokenProvider.getUserNameFromJwtToken(auth.replace("Bearer ", ""));
+        User user = userDAO.findByUsernameEquals(username).get(0);
+        Product product = productDAO.findById(product_id).get();
+
+        JSONObject answer = new JSONObject();
+        if (!product.getUserId().equals(user.getId())) {
+            answer.put("status", 1);
+            return answer.toString();
+        }
+
+        productDAO.deleteById(product_id);
 
         answer.put("status", 0);
         return answer.toString();

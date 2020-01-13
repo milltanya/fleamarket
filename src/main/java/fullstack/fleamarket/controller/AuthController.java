@@ -1,11 +1,5 @@
 package fullstack.fleamarket.controller;
 
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import javax.validation.Valid;
 
 import fullstack.fleamarket.message.request.LoginForm;
@@ -14,6 +8,7 @@ import fullstack.fleamarket.message.response.JwtResponse;
 import fullstack.fleamarket.model.User;
 import fullstack.fleamarket.repository.UserDAO;
 import fullstack.fleamarket.security.jwt.JwtProvider;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,23 +54,29 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
+        JSONObject answer = new JSONObject();
+
         if(userDAO.existsByUsernameEquals(signUpRequest.getUsername())) {
-            return new ResponseEntity<String>("Fail -> Username is already taken!",
+            answer.put("message", "Fail -> Username is already taken!");
+            return new ResponseEntity<String>(answer.toString(),
                     HttpStatus.BAD_REQUEST);
         }
 
         if(userDAO.existsByEmailEquals(signUpRequest.getEmail())) {
-            return new ResponseEntity<String>("Fail -> Email is already in use!",
+            answer.put("message", "Fail -> Email is already in use!");
+            return new ResponseEntity<String>(answer.toString(),
                     HttpStatus.BAD_REQUEST);
         }
 
         // Creating user's account
-        User user = new User(signUpRequest.getUsername(),
+        User user = new User(signUpRequest.getUsername(), signUpRequest.getName(),
                 signUpRequest.getEmail(), signUpRequest.getPassword());
 
-        user.setRoles(signUpRequest.getRole().replace("\\s", ""));
+        user.setRoles("USER");
         userDAO.save(user);
 
-        return ResponseEntity.ok().body("User registered successfully!");
+
+        answer.put("message", "User registered successfully!");
+        return ResponseEntity.ok().body(answer.toString());
     }
 }
