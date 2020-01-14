@@ -1,5 +1,8 @@
-package fullstack.fleamarket;
+package fullstack.fleamarket.repository;
 
+
+import fullstack.fleamarket.model.Product;
+import fullstack.fleamarket.model.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -21,5 +24,5 @@ public interface ProductDAO extends CrudRepository<Product, Long> {
     @Query(nativeQuery = true, value = "SELECT * FROM Product ORDER BY timestamp DESC limit :number")
     List<Product> getTopN(@Param("number") Integer number);
 
-    List<Product> findByUserEquals(User user);
+    List<Product> findByUserIdEquals(Long userId);
 }

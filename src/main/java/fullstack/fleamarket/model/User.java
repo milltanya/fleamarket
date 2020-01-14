@@ -1,7 +1,10 @@
-package fullstack.fleamarket;
+package fullstack.fleamarket.model;
+
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "User")
@@ -10,8 +13,12 @@ public class User {
     /// TODO: Добавить админов и простых пользователей
 
     @Id
-    @Column(name = "login", nullable = false, unique = true)
-    private String login;
+    @GeneratedValue
+    @Column(name = "id", nullable = false)
+    private Long id;
+
+    @Column(name = "username", nullable = false, unique = true)
+    private String username;
 
     @Column(name = "name")
     private String name;
@@ -32,23 +39,26 @@ public class User {
     @Column(name = "photo")
     private String photo;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Product> productList;
+    private String roles = "";
 
     protected User() {}
 
     public User(
-            String login,
+            String username,
+            String name,
             String email,
             String password
     ) {
-        this.login = login;
+        this.username = username;
+        this.name = name;
         this.email = email;
         this.password = password;
     }
 
-    public String getLogin() {
-        return login;
+    public String getRoles() { return roles; }
+
+    public String getUsername() {
+        return username;
     }
 
     public String getName() {
@@ -86,4 +96,8 @@ public class User {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
+    public Long getId() { return id; }
+
+    public void setRoles(String roles) { this.roles = roles; }
 }
